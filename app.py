@@ -2,6 +2,8 @@ import os
 import sys
 from typing import List
 
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QTextCursor
 from PySide6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -221,7 +223,9 @@ class MainWindow(QMainWindow):
 
     def log(self, msg: str) -> None:
         self.text_log.append(msg)
-        self.text_log.moveCursor(self.text_log.textCursor().End)
+        cursor = self.text_log.textCursor()
+        cursor.movePosition(QTextCursor.MoveOperation.End)
+        self.text_log.setTextCursor(cursor)
 
     # Run processing
     def on_run(self) -> None:

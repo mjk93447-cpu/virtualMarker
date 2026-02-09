@@ -66,6 +66,10 @@ def parse_txt_points(path: str) -> List[List[Point]]:
                     current = []
                 continue
 
+            # Skip comment lines (starting with #)
+            if line.startswith("#"):
+                continue
+
             # Split by comma or whitespace
             if "," in line:
                 parts = line.split(",")
