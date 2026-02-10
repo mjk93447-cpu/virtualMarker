@@ -28,11 +28,11 @@ jobs:
 
       - name: Build EXE with PyInstaller
         run: |
-          pyinstaller --noconfirm --onefile --name vertualmarker_app --windowed --hidden-import=PySide6.QtCore --hidden-import=PySide6.QtGui --hidden-import=PySide6.QtWidgets --hidden-import=matplotlib app.py
+          pyinstaller --noconfirm --onefile --name virtualmarker_app --windowed --hidden-import=PySide6.QtCore --hidden-import=PySide6.QtGui --hidden-import=PySide6.QtWidgets --hidden-import=matplotlib app.py
 
       - name: Upload EXE artifact
         uses: actions/upload-artifact@v4
         with:
-          name: vertualmarker_app-windows
-          path: dist/vertualmarker_app.exe
+          name: virtualmarker_app-windows
+          path: dist/virtualmarker_app.exe
 
