@@ -160,6 +160,10 @@ determine the virtual marker position from the side bending vision edge map
 - **X축 숫자 겹침 해결**:
   - x축 major tick을 자동 밀도 제한(`MaxNLocator`)으로 제어한다.
   - 라벨을 30도 회전 + 우측 정렬해 긴 좌표 범위에서도 겹침을 줄인다.
+- **거북이 선 선택 로직 보정**:
+  - `pick_two_longest_lines`: 가장 긴 두 선만 정확히 선택하도록 합치기 휴리스틱 제거.
+  - `find_turtle_line`: 각 component의 최하단 점(y 최대)을 명시적으로 비교하여 선택.
+  - 세 번째로 긴 선이나 짧은 선이 잘못 선택되는 문제 해결.
 - **버전 번호**: 현재 최종 배포 버전은 `v11.0.0` 이다.
 
 ### Developer Handoff (for next AI model)
@@ -168,7 +172,8 @@ determine the virtual marker position from the side bending vision edge map
 
 - **Core flow (`strategy2.py`)**
   - 입력 TXT 점군을 8-이웃 connected component로 복원.
-  - 가장 긴 선 2개를 기준으로 거북이 선 선택.
+  - 가장 긴 선 2개만 정확히 선택 (`pick_two_longest_lines`).
+  - 두 선 중 각각의 최하단 점(y 최대)을 비교하여 y값이 더 큰 선을 거북이 선으로 선택 (`find_turtle_line`).
   - TLSP, FH, UH를 순차 검출하고 Mv / Mv' / BSP 계산.
   - BSP에서 반대 방향 샘플링으로 `x,y,index` 출력 생성.
 - **Diagnostics policy**

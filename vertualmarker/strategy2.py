@@ -105,13 +105,13 @@ def parse_txt_points(path: str) -> List[Point]:
 def pick_two_longest_lines(components: List[List[Point]]) -> Tuple[List[Point], List[Point]]:
     """Connected component들 중 점 개수가 가장 많은 상위 2개를 선택.
     
-    만약 거북이 선이 여러 component로 분리되어 있으면 (예: 앞머리+본체),
-    가장 긴 component와 그와 가까운 component를 합쳐서 하나의 선으로 처리.
+    정확히 가장 긴 두 선만 선택하며, 합치기나 다른 휴리스틱을 사용하지 않는다.
+    거북이 선 선택은 find_turtle_line에서 두 선의 최하단 y좌표를 비교하여 결정한다.
     """
     if len(components) < 2:
         raise Strategy2Error("At least two connected line components are required.")
 
-    # 점 개수로 정렬
+    # 점 개수로 정렬하여 가장 긴 두 개만 선택
     lengths = [(len(comp), i) for i, comp in enumerate(components)]
     lengths.sort(reverse=True)
 
@@ -120,22 +120,6 @@ def pick_two_longest_lines(components: List[List[Point]]) -> Tuple[List[Point], 
     
     comp1 = components[idx1]
     comp2 = components[idx2]
-    
-    # 두 component가 가까이 있으면 합치기 (거북이 선이 분리된 경우 처리)
-    # 간단한 휴리스틱: 두 component의 최소 거리가 작으면 합침
-    min_dist = min(
-        distance(p1, p2) for p1 in comp1 for p2 in comp2
-    )
-    if min_dist < 10:  # 10픽셀 이내면 합침
-        merged = comp1 + comp2
-        # 나머지 component 중 가장 긴 것 찾기
-        remaining = [components[idx] for _, idx in lengths if idx not in [idx1, idx2]]
-        if remaining:
-            comp2 = max(remaining, key=len)
-        else:
-            # 두 번째 component가 없으면 첫 번째만 반환 (하지만 함수 시그니처상 두 개 필요)
-            comp2 = comp1[:]
-        return merged, comp2
     
     return comp1, comp2
 
@@ -159,11 +143,18 @@ def pick_longest_components(components: List[List[Point]], count: int = 2) -> Li
 def find_turtle_line(comp1: List[Point], comp2: List[Point]) -> List[Point]:
     """두 component 중 거북이 선을 찾는다.
 
-    거북이 선: 가장 아래(y 최대)인 점을 포함하는 component.
+    거북이 선: 각 component의 최하단 점(y 최대)을 비교하여,
+    그 중 y좌표값이 더 아래(더 큰 값)인 component를 선택한다.
     """
-    all_points = [(p, 1) for p in comp1] + [(p, 2) for p in comp2]
-    lowest_point, which = max(all_points, key=lambda t: t[0][1])
-    return comp1 if which == 1 else comp2
+    # 각 component의 최하단 점 찾기
+    lowest1 = max(comp1, key=lambda p: p[1])
+    lowest2 = max(comp2, key=lambda p: p[1])
+    
+    # 최하단 점의 y좌표가 더 큰(더 아래인) component를 거북이 선으로 선택
+    if lowest1[1] >= lowest2[1]:
+        return comp1
+    else:
+        return comp2
 
 
 def _shortest_path_in_component(
